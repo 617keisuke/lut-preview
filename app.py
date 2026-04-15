@@ -417,6 +417,21 @@ def api_process():
             # 素材アスペクト比に合わせて出力サイズを計算
             cont_w, cont_h, out_w, out_h, pad_side = compute_dims(info["width"], info["height"])
 
+            # ProRes等の高ビットレート素材はLUT適用前にH.264に変換してメモリを節約
+            pre_path = session_dir / "pre.mp4"
+            pre_cmd = [
+                "ffmpeg", "-y", "-threads", "1",
+                "-i", str(input_path),
+                "-t", str(trim_sec),
+                "-vf", "scale='min(iw,1920)':'min(ih,1920)':force_original_aspect_ratio=decrease:force_divisible_by=2",
+                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "15",
+                "-pix_fmt", "yuv420p", "-an",
+                str(pre_path)
+            ]
+            pre_proc = subprocess.run(pre_cmd, capture_output=True, timeout=60)
+            if pre_path.exists():
+                input_path = pre_path
+
             lut_tmp = session_dir / "lut.cube"
             shutil.copy2(str(lut_path), str(lut_tmp))
 
