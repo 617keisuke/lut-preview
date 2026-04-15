@@ -273,7 +273,7 @@ def cleanup_session(session_dir, delay=DOWNLOAD_TTL):
 
 def build_ffmpeg_cmd(input_path, output_path, lut_path, trim_sec,
                      cont_w, cont_h, out_w, out_h, pad_side=PAD, overlay_path=None, exposure=0.0):
-    lut_filter = "lut3d=file={}:interp=nearest".format(str(lut_path.resolve()))
+    lut_filter = "lut3d=file={}".format(str(lut_path.resolve()))
 
     # 露出補正フィルター（0のときはスキップ）
     ev_filter = "exposure=exposure={:.2f}".format(exposure) if abs(exposure) > 0.01 else ""
