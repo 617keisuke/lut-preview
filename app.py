@@ -302,13 +302,12 @@ def build_ffmpeg_cmd(input_path, output_path, lut_path, trim_sec,
 
         return [
             "ffmpeg", "-y",
-            "-threads", "1",
             "-i", str(input_path),
             "-loop", "1", "-i", str(overlay_path),
             "-filter_complex", filter_complex,
             "-map", "[out]",
             "-t", str(trim_sec),
-            "-c:v", "libx264", "-preset", "ultrafast", "-crf", str(OUTPUT_CRF),
+            "-c:v", "libx264", "-preset", "fast", "-crf", str(OUTPUT_CRF),
             "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
             "-progress", "pipe:2", "-nostats",
             str(output_path),
@@ -316,11 +315,10 @@ def build_ffmpeg_cmd(input_path, output_path, lut_path, trim_sec,
     else:
         return [
             "ffmpeg", "-y",
-            "-threads", "1",
             "-i", str(input_path),
             "-t", str(trim_sec),
             "-vf", ",".join([scale_lut, add_frame]),
-            "-c:v", "libx264", "-preset", "ultrafast", "-crf", str(OUTPUT_CRF),
+            "-c:v", "libx264", "-preset", "fast", "-crf", str(OUTPUT_CRF),
             "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
             "-progress", "pipe:2", "-nostats",
             str(output_path),
@@ -417,22 +415,7 @@ def api_process():
             # 素材アスペクト比に合わせて出力サイズを計算
             cont_w, cont_h, out_w, out_h, pad_side = compute_dims(info["width"], info["height"])
 
-            # ProRes等の高ビットレート素材はLUT適用前にH.264に変換してメモリを節約
-            pre_path = session_dir / "pre.mp4"
-            pre_cmd = [
-                "ffmpeg", "-y", "-threads", "1",
-                "-i", str(input_path),
-                "-t", str(trim_sec),
-                "-vf", "scale='min(iw,1920)':'min(ih,1920)':force_original_aspect_ratio=decrease:force_divisible_by=2",
-                "-c:v", "libx264", "-preset", "ultrafast", "-crf", "15",
-                "-pix_fmt", "yuv420p", "-an",
-                str(pre_path)
-            ]
-            try:
-                subprocess.run(pre_cmd, capture_output=True, timeout=180)
-            except Exception:
-                pass
-            process_input = pre_path if pre_path.exists() else input_path
+            process_input = input_path
 
             lut_tmp = session_dir / "lut.cube"
             shutil.copy2(str(lut_path), str(lut_tmp))
