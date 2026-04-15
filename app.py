@@ -33,9 +33,9 @@ MAX_CONCURRENT = 2
 DOWNLOAD_TTL   = 300
 
 # フレーム設定
-PAD         = 30    # 上・左・右 の余白（共通）
-PAD_BOT     = 140   # 下の余白（キャプションテキスト用）
-MAX_CONT_H  = 910   # コンテンツ最大高さ (PAD + MAX_CONT_H + PAD_BOT = 1080)
+PAD         = 20    # 上・左・右 の余白（共通）
+PAD_BOT     = 90    # 下の余白（キャプションテキスト用）
+MAX_CONT_H  = 610   # コンテンツ最大高さ (PAD + MAX_CONT_H + PAD_BOT = 720)
 MAX_CONT_W  = 1860  # コンテンツ最大幅
 EDGE_FADE   = 18    # 映像端のフェード幅（px）
 
@@ -152,8 +152,8 @@ def create_text_overlay(overlay_path, lut_name, description="",
 
     is_portrait = cont_h > cont_w
 
-    font_name = find_cjk_font(44 if is_portrait else 50)
-    font_desc = find_cjk_font(28 if is_portrait else 40)
+    font_name = find_cjk_font(30 if is_portrait else 34)
+    font_desc = find_cjk_font(20 if is_portrait else 26)
 
     video_cy = PAD + cont_h // 2
     video_cx = pad_side + cont_w // 2
@@ -307,7 +307,7 @@ def build_ffmpeg_cmd(input_path, output_path, lut_path, trim_sec,
             "-filter_complex", filter_complex,
             "-map", "[out]",
             "-t", str(trim_sec),
-            "-c:v", "libx264", "-preset", "fast", "-crf", str(OUTPUT_CRF),
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", str(OUTPUT_CRF),
             "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
             "-progress", "pipe:2", "-nostats",
             str(output_path),
@@ -318,7 +318,7 @@ def build_ffmpeg_cmd(input_path, output_path, lut_path, trim_sec,
             "-i", str(input_path),
             "-t", str(trim_sec),
             "-vf", ",".join([scale_lut, add_frame]),
-            "-c:v", "libx264", "-preset", "fast", "-crf", str(OUTPUT_CRF),
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", str(OUTPUT_CRF),
             "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
             "-progress", "pipe:2", "-nostats",
             str(output_path),
