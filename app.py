@@ -302,12 +302,13 @@ def build_ffmpeg_cmd(input_path, output_path, lut_path, trim_sec,
 
         return [
             "ffmpeg", "-y",
+            "-threads", "1",
             "-i", str(input_path),
             "-loop", "1", "-i", str(overlay_path),
             "-filter_complex", filter_complex,
             "-map", "[out]",
             "-t", str(trim_sec),
-            "-c:v", "libx264", "-preset", "fast", "-crf", str(OUTPUT_CRF),
+            "-c:v", "libx264", "-preset", "ultrafast", "-crf", str(OUTPUT_CRF),
             "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
             "-progress", "pipe:2", "-nostats",
             str(output_path),
@@ -315,10 +316,11 @@ def build_ffmpeg_cmd(input_path, output_path, lut_path, trim_sec,
     else:
         return [
             "ffmpeg", "-y",
+            "-threads", "1",
             "-i", str(input_path),
             "-t", str(trim_sec),
-            "-vf", ",".join([scale_lut, add_frame]),  # add_frame に scale 強制が含まれる
-            "-c:v", "libx264", "-preset", "fast", "-crf", str(OUTPUT_CRF),
+            "-vf", ",".join([scale_lut, add_frame]),
+            "-c:v", "libx264", "-preset", "ultrafast", "-crf", str(OUTPUT_CRF),
             "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
             "-progress", "pipe:2", "-nostats",
             str(output_path),
