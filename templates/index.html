@@ -237,14 +237,6 @@ footer{border-top:1px solid var(--border);padding:22px 36px;background:var(--sur
         </div>
       </div>
     </div>
-    <div class="caption-row">
-      <span class="caption-label">フレーム下テキスト</span>
-      <div class="caption-tabs" id="captionTabs">
-        <button class="caption-tab active" data-val="shot_on_iphone">Shot on iPhone</button>
-        <button class="caption-tab" data-val="date">日付</button>
-        <button class="caption-tab" data-val="none">無し</button>
-      </div>
-    </div>
   </div>
 
   <button class="submit-btn" id="submitBtn" disabled>LUTを適用してプレビューを生成</button>
@@ -559,14 +551,6 @@ document.getElementById('evSlider').addEventListener('input', e => {
   document.getElementById('evLabel').textContent = selectedEV === 0 ? '0' : sign + selectedEV;
 });
 
-// キャプション選択
-document.getElementById('captionTabs').querySelectorAll('.caption-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.getElementById('captionTabs').querySelectorAll('.caption-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    selectedCaption = btn.dataset.val;
-  });
-});
 
 loadLuts();
 </script>
