@@ -428,7 +428,10 @@ def api_process():
                 "-pix_fmt", "yuv420p", "-an",
                 str(pre_path)
             ]
-            subprocess.run(pre_cmd, capture_output=True, timeout=60)
+            try:
+                subprocess.run(pre_cmd, capture_output=True, timeout=180)
+            except Exception:
+                pass
             process_input = pre_path if pre_path.exists() else input_path
 
             lut_tmp = session_dir / "lut.cube"
@@ -463,7 +466,7 @@ def api_process():
                     pct = min(95, int(t / trim_sec * 90) + 5)
                     _write_state(state_path, {
                         "status": "processing", "progress": pct, "total_sec": trim_sec})
-            proc.wait(timeout=120)
+            proc.wait(timeout=300)
 
             if proc.returncode != 0 or not output_path.exists():
                 app.logger.error("ffmpeg failed (code %s):\n%s",
