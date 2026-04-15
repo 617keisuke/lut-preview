@@ -152,8 +152,8 @@ def create_text_overlay(overlay_path, lut_name, description="",
 
     is_portrait = cont_h > cont_w
 
-    font_name = find_cjk_font(30 if is_portrait else 34)
-    font_desc = find_cjk_font(20 if is_portrait else 26)
+    font_name = find_cjk_font(28 if is_portrait else 42)
+    font_desc = find_cjk_font(20 if is_portrait else 32)
 
     video_cy = PAD + cont_h // 2
     video_cx = pad_side + cont_w // 2
@@ -207,10 +207,10 @@ def create_text_overlay(overlay_path, lut_name, description="",
 
     # ── 下部キャプション ─────────────────────────────────────────
     if caption_type == "date":
-        font_c       = find_latin_font(28, bold=True)
+        font_c       = find_latin_font(22, bold=True)
         caption_text = shot_date or ""
     elif caption_type == "shot_on_iphone":
-        font_c       = find_latin_font(28, bold=True)
+        font_c       = find_latin_font(22, bold=True)
         caption_text = "Shot on iPhone"
     else:
         caption_text = ""
