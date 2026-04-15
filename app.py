@@ -428,9 +428,8 @@ def api_process():
                 "-pix_fmt", "yuv420p", "-an",
                 str(pre_path)
             ]
-            pre_proc = subprocess.run(pre_cmd, capture_output=True, timeout=60)
-            if pre_path.exists():
-                input_path = pre_path
+            subprocess.run(pre_cmd, capture_output=True, timeout=60)
+            process_input = pre_path if pre_path.exists() else input_path
 
             lut_tmp = session_dir / "lut.cube"
             shutil.copy2(str(lut_path), str(lut_tmp))
@@ -447,7 +446,7 @@ def api_process():
                 overlay_path = None
 
             cmd = build_ffmpeg_cmd(
-                input_path, output_path, lut_tmp, trim_sec,
+                process_input, output_path, lut_tmp, trim_sec,
                 cont_w, cont_h, out_w, out_h, pad_side,
                 overlay_path if overlay_path and overlay_path.exists() else None,
                 exposure=exposure,
