@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LUT Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f7f4ef;
+  --surface:#ffffff;
+  --surface2:#f0ebe3;
+  --border:#e4ddd4;
+  --border2:#cfc7bc;
+  --accent:#9a7858;
+  --accent-light:#b89678;
+  --accent-dim:#7c5e42;
+  --text:#2a2420;
+  --muted:#8c867e;
+  --muted2:#b8b0a8;
+  --danger:#b05040;
+  --success:#5a8558;
+  --info:#4a6a8a;
+  --r:6px;--r2:8px;
+  --shadow:0 1px 4px rgba(60,40,20,.07);
+  --shadow2:0 2px 12px rgba(60,40,20,.09);
+}
+body{background:var(--bg);color:var(--text);font-family:"Klee One",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:15px;line-height:1.65;min-height:100vh}
+
+/* ── Header ── */
+header{border-bottom:1px solid var(--border);padding:20px 36px;display:flex;align-items:center;gap:16px;background:var(--surface)}
+.logo{font-size:17px;font-weight:500;letter-spacing:.4px;color:var(--accent)}
+.logo em{color:var(--muted);font-style:normal;font-weight:400;font-size:15px}
+.badge{font-size:10px;font-weight:600;background:var(--surface2);color:var(--accent);border:1px solid var(--border2);padding:2px 9px;border-radius:20px;letter-spacing:.5px}
+.header-by{font-size:12px;color:var(--muted2);letter-spacing:.2px;text-decoration:none;transition:color .18s}
+.header-by:hover{color:var(--muted)}
+
+/* ── Layout ── */
+main{max-width:860px;margin:0 auto;padding:52px 24px 110px}
+.page-title{font-size:24px;font-weight:500;margin-bottom:6px;letter-spacing:-.2px;color:var(--text)}
+.page-sub{color:var(--muted);font-size:13.5px;margin-bottom:44px;line-height:1.7}
+
+/* ── Card ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:28px 30px 24px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-label{font-size:13px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.card-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── Category tabs ── */
+.cat-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.cat-tab{background:none;border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .18s;font-family:inherit}
+.cat-tab:hover{border-color:var(--accent-light);color:var(--accent)}
+.cat-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+
+
+/* ── LUT grid ── */
+.lut-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:10px}
+.lut-card{border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px 12px;cursor:pointer;transition:border-color .18s,box-shadow .18s,background .18s;user-select:none;position:relative;background:var(--surface)}
+.lut-card:hover{border-color:var(--accent-light);box-shadow:var(--shadow2);background:#fdfaf7}
+.lut-card.active{border-color:var(--accent);background:#fdf8f3;box-shadow:0 0 0 3px rgba(154,120,88,.12)}
+.lut-thumb{width:100%;height:70px;object-fit:cover;border-radius:6px;margin-bottom:10px;background:var(--surface2);display:block}
+.lut-thumb-placeholder{width:100%;height:70px;border-radius:6px;margin-bottom:10px;background:linear-gradient(135deg,#f0e8d8 0%,#e0d0b8 100%);display:flex;align-items:center;justify-content:center;font-size:22px}
+.lut-name{font-size:13px;font-weight:500;color:var(--text);line-height:1.3;margin-bottom:3px}
+.lut-desc{font-size:11px;color:var(--muted);line-height:1.45;margin-bottom:6px}
+.lut-price{font-size:11px;color:var(--accent);font-weight:600}
+.lut-radio-dot{display:none}
+.lut-msg{color:var(--muted);font-size:13px;padding:8px 0;grid-column:1/-1}
+
+/* ── Drop zone ── */
+.drop-zone{border:2px dashed var(--border2);border-radius:var(--r);padding:36px 24px;text-align:center;cursor:pointer;transition:border-color .18s,background .18s}
+.drop-zone:hover,.drop-zone.over{border-color:var(--accent);background:#fdf7f0}
+.drop-zone.has-file{border-style:solid;border-color:var(--border2)}
+.drop-icon{font-size:30px;margin-bottom:10px;line-height:1;opacity:.7}
+.drop-primary{font-size:14px;font-weight:500;margin-bottom:4px;color:var(--text)}
+.drop-secondary{font-size:12px;color:var(--muted)}
+.file-info{margin-top:12px;background:var(--surface2);border-radius:8px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.file-meta{min-width:0}
+.file-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-details{font-size:11px;color:var(--muted);margin-top:2px}
+.file-clear{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:2px 4px;line-height:1;flex-shrink:0}
+.file-clear:hover{color:var(--danger)}
+
+/* ── Caption / EV rows ── */
+.caption-row{display:flex;align-items:center;gap:12px;margin-top:16px}
+.caption-label{font-size:11px;color:var(--muted);white-space:nowrap;flex-shrink:0}
+.caption-tabs{display:flex;gap:6px}
+.caption-tab{background:none;border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .18s;white-space:nowrap}
+.caption-tab:hover{border-color:var(--accent-light);color:var(--accent)}
+.caption-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:500}
+.ev-row{display:grid;grid-template-columns:auto auto 1fr;grid-template-rows:auto auto;align-items:center;column-gap:12px;row-gap:3px;margin-top:14px}
+.ev-label{grid-column:1;grid-row:1;font-size:11px;color:var(--muted);white-space:nowrap}
+.ev-value{grid-column:2;grid-row:1;font-size:12px;font-weight:600;color:var(--accent);min-width:28px;text-align:center}
+.ev-wrap{display:contents}
+.ev-slider{grid-column:3;grid-row:1;width:100%;-webkit-appearance:none;appearance:none;height:3px;border-radius:2px;background:var(--border2);outline:none;cursor:pointer;display:block;margin:0;padding:0}
+.ev-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--accent);cursor:pointer;transition:transform .12s;border:2px solid #fff;box-shadow:0 1px 4px rgba(60,40,20,.18)}
+.ev-slider::-webkit-slider-thumb:hover{transform:scale(1.18)}
+.ev-ticks{grid-column:3;grid-row:2;display:flex;justify-content:space-between;padding:0 8px}
+.ev-tick{width:0;overflow:visible;display:flex;justify-content:center;font-size:9px;color:var(--muted2);white-space:nowrap}
+
+/* ── Notice ── */
+.notice{background:#faf6f0;border:1px solid var(--border);border-radius:8px;padding:11px 16px;font-size:12px;color:var(--muted);margin-top:14px;line-height:1.8}
+.notice strong{color:var(--accent)}
+
+/* ── Submit button ── */
+.submit-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r);padding:15px 24px;font-size:15px;font-weight:600;cursor:pointer;transition:background .18s,opacity .18s,box-shadow .18s;letter-spacing:.1px;margin-top:10px;box-shadow:0 2px 8px rgba(154,120,88,.22)}
+.submit-btn:hover:not(:disabled){background:var(--accent-light);box-shadow:0 4px 14px rgba(154,120,88,.28)}
+.submit-btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+
+/* ── Progress ── */
+.progress-wrap{display:none;margin-top:22px}
+.progress-wrap.show{display:block}
+.prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.prog-label{font-size:13px;color:var(--muted)}
+.prog-pct{font-size:13px;font-weight:600;color:var(--accent)}
+.prog-track{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;width:0%;transition:width .5s ease}
+.prog-fill.pulse{animation:pulse-prog 1.2s ease-in-out infinite}
+@keyframes pulse-prog{0%,100%{opacity:1}50%{opacity:.45}}
+.prog-sub{font-size:12px;color:var(--muted2);margin-top:8px;text-align:center}
+
+/* ── Error ── */
+.error-box{display:none;background:#fdf5f3;border:1px solid #e4c0b8;border-radius:8px;padding:12px 16px;font-size:13px;color:var(--danger);margin-top:14px;line-height:1.6}
+.error-box.show{display:block}
+
+/* ── Result ── */
+.result-wrap{display:none;margin-top:26px}
+.result-wrap.show{display:block}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;box-shadow:var(--shadow2)}
+.result-video-area{background:#1a1610;position:relative}
+.result-video-area video{width:100%;display:block;max-height:490px;object-fit:contain}
+.result-video-area.portrait{background:#1a1610;max-height:75vh;overflow:hidden}
+.result-video-area.portrait video{width:100%;height:100%;max-height:none;object-fit:contain}
+.result-body{padding:22px 26px 24px;margin-top:16px}
+.result-title{font-size:15px;font-weight:500;margin-bottom:14px;display:flex;align-items:center;gap:9px;color:var(--text)}
+.check-icon{width:20px;height:20px;background:var(--success);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0}
+.meta-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px}
+.meta-chip{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--muted)}
+.meta-chip strong{color:var(--text)}
+.result-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn-dl{display:inline-flex;align-items:center;gap:7px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);padding:11px 22px;font-size:14px;font-weight:600;text-decoration:none;cursor:pointer;transition:background .18s,box-shadow .18s;box-shadow:0 2px 8px rgba(154,120,88,.2)}
+.btn-dl:hover{background:var(--accent-light);box-shadow:0 4px 12px rgba(154,120,88,.26)}
+.btn-retry{display:inline-flex;align-items:center;gap:7px;background:none;border:1.5px solid var(--border2);border-radius:var(--r);padding:10px 18px;font-size:14px;font-family:inherit;line-height:1;color:var(--muted);cursor:pointer;transition:all .18s;text-decoration:none;box-sizing:border-box;-webkit-appearance:none;appearance:none}
+.btn-retry:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── note link (result area) ── */
+.note-link-inline{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--border2);padding-bottom:1px;transition:color .18s,border-color .18s;margin-left:auto}
+.note-link-inline:hover{color:var(--accent);border-color:var(--accent)}
+.note-link-inline svg{flex-shrink:0;opacity:.7}
+
+/* ── Footer ── */
+footer{border-top:1px solid var(--border);padding:22px 36px;background:var(--surface);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.footer-left{font-size:13.5px;color:var(--muted2)}
+.footer-right{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--muted)}
+.footer-note-link{display:inline-flex;align-items:center;gap:5px;color:var(--accent);text-decoration:none;font-weight:500;transition:opacity .18s}
+.footer-note-link:hover{opacity:.75}
+
+/* ── Mobile ── */
+@media(max-width:600px){
+  header{padding:14px 18px;gap:10px}
+  .header-by{display:none}
+  main{padding:28px 16px 80px}
+  .card{padding:20px 18px 18px}
+  .lut-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+  .lut-thumb,.lut-thumb-placeholder{height:56px}
+  .drop-zone{padding:26px 16px}
+  .caption-row{flex-wrap:wrap;gap:8px}
+  .caption-tabs{flex-wrap:wrap}
+  .ev-row{grid-template-columns:auto auto 1fr;column-gap:8px}
+  .result-actions{flex-direction:column;align-items:stretch}
+  .btn-dl,.btn-retry{justify-content:center;width:100%}
+  footer{padding:16px 18px;flex-direction:column;align-items:flex-start;gap:6px}
+  .result-body{padding:16px 18px 18px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">LUT Preview</div>
+  <div class="badge">FREE</div>
+  <a class="header-by" href="https://note.com/keisukemiura" target="_blank" rel="noopener">けいすけ | iPhoneで映像撮る人。</a>
+</header>
+<main>
+  <div class="card">
+    <div class="card-label">① LUTを選ぶ</div>
+    <div class="cat-tabs" id="catTabs"></div>
+    <div class="lut-grid" id="lutGrid">
+      <div class="lut-msg">読み込み中...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">② クリップをアップロード</div>
+    <div class="drop-zone" id="dropZone">
+      <div class="drop-icon">🎬</div>
+      <div class="drop-primary">クリップをドラッグ＆ドロップ</div>
+      <div class="drop-secondary">またはクリックしてファイルを選択</div>
+      <input type="file" id="fileInput" accept=".mov,.mp4,.mxf" style="display:none">
+    </div>
+    <div class="file-info" id="fileInfo" style="display:none">
+      <div class="file-meta">
+        <div class="file-name" id="fileName"></div>
+        <div class="file-details" id="fileDetails"></div>
+      </div>
+      <button class="file-clear" id="fileClear" title="クリア">✕</button>
+    </div>
+    <div class="notice" style="margin-top:14px">
+      <strong>推奨:</strong> 3〜5秒のクリップ。5秒超えは動画生成に時間がかかったり、エラーが出る可能性があります。<br>
+      対応形式: <strong>.mov (ProRes)</strong> / .mp4 / .mxf &nbsp;|&nbsp; 最大 <strong>500 MB</strong><br>
+      アップロードファイルは処理完了後すぐに削除されます。出力は5分後に自動削除。
+    </div>
+    <div class="ev-row">
+      <span class="ev-label">露出補正</span>
+      <span class="ev-value" id="evLabel">0</span>
+      <div class="ev-wrap">
+        <input type="range" class="ev-slider" id="evSlider" min="-1" max="1" step="0.1" value="0">
+        <div class="ev-ticks">
+          <span class="ev-tick">-1</span>
+          <span class="ev-tick">-0.5</span>
+          <span class="ev-tick">0</span>
+          <span class="ev-tick">+0.5</span>
+          <span class="ev-tick">+1</span>
+        </div>
+      </div>
+    </div>
+    <div class="caption-row">
+      <span class="caption-label">フレーム下テキスト</span>
+      <div class="caption-tabs" id="captionTabs">
+        <button class="caption-tab active" data-val="shot_on_iphone">Shot on iPhone</button>
+        <button class="caption-tab" data-val="date">日付</button>
+        <button class="caption-tab" data-val="none">無し</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" disabled>LUTを適用してプレビューを生成</button>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="prog-header">
+      <span class="prog-label" id="progLabel">アップロード中...</span>
+      <span class="prog-pct" id="progPct">0%</span>
+    </div>
+    <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-sub" id="progSub"></div>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <div class="result-wrap" id="resultWrap">
+    <div class="result-card">
+      <div class="result-video-area">
+        <video id="resultVideo" controls autoplay muted loop playsinline></video>
+      </div>
+    </div>
+    <div class="card result-body">
+      <div class="result-title">
+        <span class="check-icon">✓</span> プレビュー完成
+      </div>
+      <div class="result-actions">
+        <a class="btn-dl" id="dlBtn" href="#">⬇ MP4をダウンロード（1080p）</a>
+        <button class="btn-dl" id="shareBtn" style="display:none;border:none;cursor:pointer;font-family:inherit;">📷 カメラロールに保存</button>
+        <button class="btn-retry" id="retryBtn">↺ 別のLUTを試す</button>
+        <a class="btn-retry" href="https://note.com/keisukemiura/m/mfeff03a51eeb" target="_blank" rel="noopener">↗ LUTを購入する</a>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>
+  <span class="footer-left"></span>
+  <span class="footer-right">
+    <a class="footer-note-link" href="https://note.com/keisukemiura/m/mfeff03a51eeb" target="_blank" rel="noopener">LUTのご購入は note から</a>
+  </span>
+</footer>
+
+<script>
+let allLuts=[], categories=[], selectedLut=null, selectedFile=null, currentCat='all', evtSource=null, selectedCaption='shot_on_iphone', selectedEV=0;
+
+async function loadLuts() {
+  try {
+    const res = await fetch('/api/luts');
+    const data = await res.json();
+    allLuts = data.luts || [];
+    categories = data.categories || [];
+    renderCatTabs();
+    renderLuts(categories[0]?.id || 'all');
+  } catch {
+    document.getElementById('lutGrid').innerHTML='<div class="lut-msg" style="color:var(--danger)">LUTの読み込みに失敗しました</div>';
+  }
+}
+
+function renderCatTabs() {
+  const tabs = document.getElementById('catTabs');
+  if (!categories.length) { tabs.style.display='none'; return; }
+  tabs.innerHTML = categories.map((c, i) =>
+    `<button class="cat-tab${i===0?' active':''}" data-id="${c.id}">${c.label}</button>`
+  ).join('');
+  currentCat = categories[0]?.id || 'all';
+  tabs.querySelectorAll('.cat-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCat = btn.dataset.id;
+      renderLuts(currentCat);
+    });
+  });
+}
+
+function renderLuts(cat) {
+  const grid = document.getElementById('lutGrid');
+  const list = cat==='all' ? allLuts : allLuts.filter(l => l.category===cat);
+  if (!list.length) { grid.innerHTML='<div class="lut-msg">このカテゴリにLUTがありません</div>'; return; }
+  grid.innerHTML = list.map(lut => {
+    const thumb = lut.thumbnail
+      ? `<img class="lut-thumb" src="/static/thumbnails/${lut.thumbnail}" alt="" loading="lazy">`
+      : `<div class="lut-thumb-placeholder">🎨</div>`;
+    const price = lut.price_jpy ? `<div class="lut-price">¥${lut.price_jpy.toLocaleString()}</div>` : '';
+    const desc  = lut.description ? `<div class="lut-desc">${escHtml(lut.description)}</div>` : '';
+    return `<div class="lut-card${selectedLut===lut.id?' active':''}" data-id="${lut.id}">
+      <div class="lut-radio-dot"></div>
+      ${thumb}
+      <div class="lut-name">${escHtml(lut.name)}</div>
+      ${desc}${price}
+    </div>`;
+  }).join('');
+  grid.querySelectorAll('.lut-card').forEach(card => {
+    card.addEventListener('click', () => {
+      grid.querySelectorAll('.lut-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      selectedLut = card.dataset.id;
+      updateBtn();
+    });
+  });
+}
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+dropZone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => { if(e.target.files[0]) setFile(e.target.files[0]); });
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('over');
+  if(e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+});
+document.getElementById('fileClear').addEventListener('click', clearFile);
+
+function setFile(f) {
+  selectedFile = f;
+  dropZone.classList.add('has-file');
+  document.getElementById('fileInfo').style.display = 'flex';
+  document.getElementById('fileName').textContent = f.name;
+  document.getElementById('fileDetails').textContent = (f.size/1024/1024).toFixed(1)+' MB';
+  updateBtn(); hideError();
+}
+function clearFile() {
+  selectedFile = null; fileInput.value = '';
+  dropZone.classList.remove('has-file');
+  document.getElementById('fileInfo').style.display = 'none';
+  updateBtn();
+}
+function updateBtn() {
+  document.getElementById('submitBtn').disabled = !(selectedLut && selectedFile);
+}
+
+document.getElementById('submitBtn').addEventListener('click', startProcess);
+document.getElementById('retryBtn').addEventListener('click', () => {
+  document.getElementById('resultWrap').classList.remove('show');
+});
+
+async function startProcess() {
+  if (!selectedLut || !selectedFile) return;
+  setUI('processing'); hideError(); setProgress(0,'アップロード中...','');
+  const fd = new FormData();
+  fd.append('video', selectedFile);
+  fd.append('lut_id', selectedLut);
+  fd.append('caption_type', selectedCaption);
+  fd.append('exposure', selectedEV);
+  let sessionId;
+  try {
+    const res = await fetch('/api/process', { method:'POST', body:fd });
+    const data = await res.json();
+    if (!res.ok) { showError(data.error||'エラーが発生しました'); setUI('idle'); return; }
+    sessionId = data.session_id;
+  } catch {
+    showError('通信エラーが発生しました。再度お試しください。'); setUI('idle'); return;
+  }
+  if (evtSource) evtSource.close();
+  evtSource = new EventSource('/api/progress/'+sessionId);
+  evtSource.onmessage = e => {
+    const s = JSON.parse(e.data);
+    if (s.status==='uploading')   setProgress(s.progress||1,'アップロード中...','');
+    if (s.status==='analyzing')   setProgress(3,'動画を解析中...','');
+    if (s.status==='processing') {
+      const pct = s.progress||5;
+      setProgress(pct,'LUTを適用中... ('+pct+'%)', s.total_sec ? '処理時間の目安: '+Math.ceil(s.total_sec*5)+'秒程度' : '');
+    }
+    if (s.status==='done') {
+      evtSource.close(); setProgress(100,'完了！','');
+      setTimeout(() => { setUI('idle'); showResult(s); }, 400);
+    }
+    if (s.status==='error') { evtSource.close(); showError(s.error||'エラーが発生しました'); setUI('idle'); }
+  };
+  evtSource.onerror = () => { evtSource.close(); showError('接続エラーが発生しました。再度お試しください。'); setUI('idle'); };
+}
+
+function setUI(mode) {
+  const btn = document.getElementById('submitBtn');
+  const wrap = document.getElementById('progressWrap');
+  if (mode==='processing') { btn.disabled=true; wrap.classList.add('show'); }
+  else { btn.disabled=!(selectedLut&&selectedFile); if (mode==='idle') wrap.classList.remove('show'); }
+}
+function setProgress(pct,label,sub) {
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('progPct').textContent  = pct+'%';
+  document.getElementById('progLabel').textContent = label;
+  document.getElementById('progSub').textContent  = sub;
+  document.getElementById('progFill').classList.toggle('pulse', pct<100&&pct>0);
+}
+function showError(msg) {
+  const box = document.getElementById('errorBox');
+  box.textContent = '⚠ '+msg; box.classList.add('show');
+  box.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+function hideError() { document.getElementById('errorBox').classList.remove('show'); }
+
+function showResult(data) {
+  const video = document.getElementById('resultVideo');
+  const dlBtn = document.getElementById('dlBtn');
+  const shareBtn = document.getElementById('shareBtn');
+  const fileName = 'lut_preview_' + (data.lut_name || '').replace(/\s+/g, '_') + '.mp4';
+
+  video.src = data.download_url;
+  video.onloadedmetadata = () => {
+    const area = video.closest('.result-video-area');
+    const wrap = document.getElementById('resultWrap');
+    if (video.videoHeight > video.videoWidth) {
+      area.classList.add('portrait');
+      area.style.aspectRatio = `${video.videoWidth} / ${video.videoHeight}`;
+      // result-wrap全体を縦動画の幅に縮小（カード背景の白余白をなくす）
+      const maxH = Math.min(window.innerHeight * 0.75, 490);
+      const calcW = Math.floor(maxH * (video.videoWidth / video.videoHeight));
+      const availW = wrap.parentElement ? wrap.parentElement.offsetWidth : window.innerWidth;
+      wrap.style.maxWidth = Math.min(calcW, availW) + 'px';
+      wrap.style.marginLeft = 'auto';
+      wrap.style.marginRight = 'auto';
+    } else {
+      area.classList.remove('portrait');
+      area.style.aspectRatio = '';
+      wrap.style.maxWidth = '';
+      wrap.style.marginLeft = '';
+      wrap.style.marginRight = '';
+    }
+  };
+  dlBtn.href = data.download_url;
+  dlBtn.setAttribute('download', fileName);
+
+  // モバイル（iOS/Android）かつ Web Share API が使える場合のみカメラロール保存ボタンを表示
+  // Mac Safari も navigator.share を持つが PC ではダウンロードを優先する
+  const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobileDevice && navigator.share) {
+    dlBtn.style.display = 'none';
+    shareBtn.style.display = '';
+    shareBtn.onclick = async () => {
+      shareBtn.textContent = '⏳ 準備中...';
+      shareBtn.disabled = true;
+      try {
+        const res = await fetch(data.download_url);
+        const blob = await res.blob();
+        const file = new File([blob], fileName, { type: 'video/mp4' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'LUT Preview' });
+        } else {
+          // ファイル共有非対応の場合は通常ダウンロード
+          dlBtn.style.display = '';
+          shareBtn.style.display = 'none';
+          dlBtn.click();
+        }
+      } catch (e) {
+        if (e.name !== 'AbortError') {
+          dlBtn.style.display = '';
+          shareBtn.style.display = 'none';
+        }
+      } finally {
+        shareBtn.textContent = '📷 カメラロールに保存';
+        shareBtn.disabled = false;
+      }
+    };
+  } else {
+    // PC またはWeb Share API非対応 → 通常ダウンロード
+    dlBtn.style.display = '';
+    shareBtn.style.display = 'none';
+  }
+
+  document.getElementById('resultWrap').classList.add('show');
+  document.getElementById('resultWrap').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function chip(k,v) {
+  return `<div class="meta-chip">${escHtml(k)}: <strong>${escHtml(String(v))}</strong></div>`;
+}
+function escHtml(s) {
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// 露出スライダー
+document.getElementById('evSlider').addEventListener('input', e => {
+  selectedEV = parseFloat(e.target.value);
+  const sign = selectedEV > 0 ? '+' : '';
+  document.getElementById('evLabel').textContent = selectedEV === 0 ? '0' : sign + selectedEV;
+});
+
+// キャプション選択
+document.getElementById('captionTabs').querySelectorAll('.caption-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('captionTabs').querySelectorAll('.caption-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedCaption = btn.dataset.val;
+  });
+});
+
+loadLuts();
+</script>
+</body>
+</html>

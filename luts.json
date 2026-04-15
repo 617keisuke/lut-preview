@@ -1,0 +1,143 @@
+{
+  "luts": [
+    {
+      "id":          "Hatsune",
+      "file":        "初音.cube",
+      "name":        "初音",
+      "category":    "cinematic",
+      "description": "春を告げる鶯の声",
+      "price_jpy":   null,
+      "thumbnail":   "初音.jpg"
+    },
+    {
+      "id":          "Kusamoe",
+      "file":        "草萌.cube",
+      "name":        "草萌",
+      "category":    "cinematic",
+      "description": "草や植物が芽吹き始めること",
+      "price_jpy":   null,
+      "thumbnail":   "草萌.jpg"
+    },
+    {
+      "id":          "Kunpu",
+      "file":        "薫風.cube",
+      "name":        "薫風",
+      "category":    "cinematic",
+      "description": "爽やかな初夏の風",
+      "price_jpy":   null,
+      "thumbnail":   "薫風.jpg"
+    },
+    {
+      "id":          "Suiu",
+      "file":        "翠雨.cube",
+      "name":        "翠雨",
+      "category":    "cinematic",
+      "description": "深い緑に静かに降る雨",
+      "price_jpy":   null,
+      "thumbnail":   "翠雨.jpg"
+    },
+    {
+      "id":          "Byoka",
+      "file":        "杪夏.cube",
+      "name":        "杪夏",
+      "category":    "cinematic",
+      "description": "夏の終わり",
+      "price_jpy":   null,
+      "thumbnail":   "杪夏.jpg"
+    },
+    {
+      "id":          "Zanen",
+      "file":        "残炎.cube",
+      "name":        "残炎",
+      "category":    "cinematic",
+      "description": "残り続ける夏の暑さのこと",
+      "price_jpy":   null,
+      "thumbnail":   "残炎.jpg"
+    },
+    {
+      "id":          "Shiranatsu",
+      "file":        "白夏.cube",
+      "name":        "白夏",
+      "category":    "cinematic",
+      "description": "夏から冬に変化する頃",
+      "price_jpy":   null,
+      "thumbnail":   "白夏.jpg"
+    },
+    {
+      "id":          "Shinryo",
+      "file":        "新涼.cube",
+      "name":        "新涼",
+      "category":    "cinematic",
+      "description": "初秋の涼しさ",
+      "price_jpy":   null,
+      "thumbnail":   "新涼.jpg"
+    },
+    {
+      "id":          "Sorai",
+      "file":        "爽籟.cube",
+      "name":        "爽籟",
+      "category":    "cinematic",
+      "description": "秋の爽やかな風のひびき",
+      "price_jpy":   null,
+      "thumbnail":   "爽籟.jpg"
+    },
+    {
+      "id":          "Kinshu",
+      "file":        "錦秋.cube",
+      "name":        "錦秋",
+      "category":    "cinematic",
+      "description": "絨毯のように舞い散る紅葉",
+      "price_jpy":   null,
+      "thumbnail":   "錦秋.jpg"
+    },
+    {
+      "id":          "Sasameyuki",
+      "file":        "細雪.cube",
+      "name":        "細雪",
+      "category":    "cinematic",
+      "description": "肌寒さを感じる淡い冬色",
+      "price_jpy":   null,
+      "thumbnail":   "細雪.jpg"
+    },
+    {
+      "id":          "Rikka",
+      "file":        "六花.cube",
+      "name":        "六花",
+      "category":    "cinematic",
+      "description": "雪の異称",
+      "price_jpy":   null,
+      "thumbnail":   "六花.jpg"
+    },
+    {
+      "id":          "Hakubo",
+      "file":        "薄暮.cube",
+      "name":        "薄暮",
+      "category":    "standard",
+      "description": "日が暮れようとする頃",
+      "price_jpy":   null,
+      "thumbnail":   "薄暮.jpg"
+    },
+    {
+      "id":          "Reimei",
+      "file":        "黎明.cube",
+      "name":        "黎明",
+      "category":    "standard",
+      "description": "新しい始まりを感じさせる夜明け",
+      "price_jpy":   null,
+      "thumbnail":   "黎明.jpg"
+    },
+    {
+      "id":          "Shinonome",
+      "file":        "東雲.cube",
+      "name":        "東雲",
+      "category":    "standard",
+      "description": "太陽が昇る前、明るく染まる東の空",
+      "price_jpy":   null,
+      "thumbnail":   "東雲.jpg"
+    }
+  ],
+  "categories": [
+    { "id": "cinematic", "label": "Apple Log" },
+    { "id": "standard",  "label": "Standard" }
+  ]
+}

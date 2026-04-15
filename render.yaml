@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: lut-preview
+    env: python
+    buildCommand: "apt-get install -y ffmpeg && pip install -r requirements.txt"
+    startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120"
+    plan: free
