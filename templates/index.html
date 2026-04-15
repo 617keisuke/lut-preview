@@ -390,7 +390,7 @@ async function startProcess() {
       xhr.upload.onprogress = e => {
         if (e.lengthComputable) {
           const pct = Math.round(e.loaded / e.total * 100);
-          setProgress(Math.round(pct * 0.4), `アップロード中... ${pct}%`, '');
+          setProgress(Math.round(pct * 0.6), 'アップロード中...', `${pct}%`);
         }
       };
       xhr.onload = () => {
@@ -408,11 +408,12 @@ async function startProcess() {
   evtSource = new EventSource('/api/progress/'+sessionId);
   evtSource.onmessage = e => {
     const s = JSON.parse(e.data);
-    if (s.status==='uploading')   setProgress(s.progress||1,'アップロード中...','');
-    if (s.status==='analyzing')   setProgress(3,'動画を解析中...','');
+    if (s.status==='uploading')   setProgress(60,'アップロード中...','100%');
+    if (s.status==='analyzing')   setProgress(63,'動画を解析中...','');
     if (s.status==='processing') {
       const pct = s.progress||5;
-      setProgress(pct,'LUTを適用中... ('+pct+'%)', s.total_sec ? '処理時間の目安: '+Math.ceil(s.total_sec*5)+'秒程度' : '');
+      const bar = 63 + Math.round(pct * 0.35);
+      setProgress(bar,'LUTを適用中...', pct+'%');
     }
     if (s.status==='done') {
       evtSource.close(); setProgress(100,'完了！','');
