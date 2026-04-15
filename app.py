@@ -285,7 +285,8 @@ def build_ffmpeg_cmd(input_path, output_path, lut_path, trim_sec,
     ]
     if ev_filter:
         steps.append(ev_filter)
-    steps.append(lut_filter)
+    steps.append(lut_filter.replace("lut3d='", "lut3d=interp=nearest:'"))
+    steps.append("fps=24")
     vf = ",".join(steps)
 
     return [
@@ -293,7 +294,7 @@ def build_ffmpeg_cmd(input_path, output_path, lut_path, trim_sec,
         "-i", str(input_path),
         "-t", str(trim_sec),
         "-vf", vf,
-        "-c:v", "libx264", "-preset", "veryfast", "-crf", str(OUTPUT_CRF),
+        "-c:v", "libx264", "-preset", "ultrafast", "-crf", str(OUTPUT_CRF),
         "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
         "-progress", "pipe:2", "-nostats",
         str(output_path),
