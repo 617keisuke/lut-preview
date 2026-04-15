@@ -278,8 +278,7 @@ def build_ffmpeg_cmd(input_path, output_path, lut_path, trim_sec,
     # 露出補正フィルター（0のときはスキップ）
     ev_filter = "exposure=exposure={:.2f}".format(exposure) if abs(exposure) > 0.01 else ""
 
-    # ① スケール → 露出補正 → LUT適用 → 白でレターボックス
-    # force_divisible_by=2 で exposure フィルター後の奇数サイズを防ぐ
+    # スケール → 露出補正 → LUT適用（フレームなし・シンプル）
     steps = [
         "scale={cw}:{ch}:force_original_aspect_ratio=decrease:force_divisible_by=2".format(
             cw=cont_w, ch=cont_h)
@@ -287,42 +286,18 @@ def build_ffmpeg_cmd(input_path, output_path, lut_path, trim_sec,
     if ev_filter:
         steps.append(ev_filter)
     steps.append(lut_filter)
-    steps.append("pad={cw}:{ch}:(ow-iw)/2:(oh-ih)/2:white".format(cw=cont_w, ch=cont_h))
-    scale_lut = ",".join(steps)
+    vf = ",".join(steps)
 
-    # ② 白フレーム追加 → サイズを明示的に強制（中間フィルターの1px誤差を吸収）
-    add_frame = "pad={ow}:{oh}:{px}:{py}:white,scale={ow}:{oh}".format(
-        ow=out_w, oh=out_h, px=pad_side, py=PAD)
-
-    if overlay_path and Path(overlay_path).exists():
-        filter_complex = (
-            "[0:v]{scale_lut},{frame}[video];"
-            "[video][1:v]overlay=0:0[out]"
-        ).format(scale_lut=scale_lut, frame=add_frame)
-
-        return [
-            "ffmpeg", "-y",
-            "-i", str(input_path),
-            "-loop", "1", "-i", str(overlay_path),
-            "-filter_complex", filter_complex,
-            "-map", "[out]",
-            "-t", str(trim_sec),
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", str(OUTPUT_CRF),
-            "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
-            "-progress", "pipe:2", "-nostats",
-            str(output_path),
-        ]
-    else:
-        return [
-            "ffmpeg", "-y",
-            "-i", str(input_path),
-            "-t", str(trim_sec),
-            "-vf", ",".join([scale_lut, add_frame]),
-            "-c:v", "libx264", "-preset", "veryfast", "-crf", str(OUTPUT_CRF),
-            "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
-            "-progress", "pipe:2", "-nostats",
-            str(output_path),
-        ]
+    return [
+        "ffmpeg", "-y",
+        "-i", str(input_path),
+        "-t", str(trim_sec),
+        "-vf", vf,
+        "-c:v", "libx264", "-preset", "veryfast", "-crf", str(OUTPUT_CRF),
+        "-pix_fmt", "yuv420p", "-an", "-movflags", "+faststart",
+        "-progress", "pipe:2", "-nostats",
+        str(output_path),
+    ]
 
 def parse_ffmpeg_time(line):
     m = re.search(r"out_time=(\d+):(\d+):([\d.]+)", line)
@@ -420,21 +395,9 @@ def api_process():
             lut_tmp = session_dir / "lut.cube"
             shutil.copy2(str(lut_path), str(lut_tmp))
 
-            overlay_path = session_dir / "overlay.png"
-            try:
-                create_text_overlay(
-                    overlay_path, lut_disp, lut_desc,
-                    caption_type, shot_date,
-                    out_w, out_h, cont_w, cont_h, pad_side,
-                )
-            except Exception as e:
-                app.logger.warning("overlay generation failed: %s", e)
-                overlay_path = None
-
             cmd = build_ffmpeg_cmd(
                 process_input, output_path, lut_tmp, trim_sec,
                 cont_w, cont_h, out_w, out_h, pad_side,
-                overlay_path if overlay_path and overlay_path.exists() else None,
                 exposure=exposure,
             )
             _write_state(state_path, {"status": "processing", "progress": 5, "total_sec": trim_sec})
